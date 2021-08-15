@@ -1,0 +1,7 @@
+name: harborbot
+cli: false
+
+chat_application: slack
+slack_token: ${SLACK_TOKEN}
+slack_signing_secret: ${SLACK_SIGNING_SECRET}
+slack_events_callback_path: /slack_events/v1/events
