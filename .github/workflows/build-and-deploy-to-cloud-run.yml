@@ -55,4 +55,4 @@ jobs:
       # Deploy the Docker image to the Cloud Run service
       - name: Deploy API
         run: |
-          gcloud run deploy $CLOUD_RUN_SERVICE --image $REGISTRY_HOSTNAME/$GOOGLE_PROJECT/$IMAGE:${GITHUB_SHA} --platform managed --project $GOOGLE_PROJECT --region us-west-2
+          gcloud run deploy $CLOUD_RUN_SERVICE --image $REGISTRY_HOSTNAME/$GOOGLE_PROJECT/$IMAGE:${GITHUB_SHA} --platform managed --project $GOOGLE_PROJECT --region us-central1 --allow-unauthenticated
