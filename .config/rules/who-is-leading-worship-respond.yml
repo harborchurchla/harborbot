@@ -5,7 +5,7 @@ reaction: loading
 actions:
   - name: find out who is leading worship
     type: exec
-    cmd: python config/scripts/test.py
+    cmd: /bin/sh -c "python config/scripts/test.py"
     timeout: 30
     update_reaction: white_check_mark
 format_output: "${_exec_output}"
