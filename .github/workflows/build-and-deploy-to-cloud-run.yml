@@ -22,8 +22,8 @@ jobs:
     name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
     steps:
-      - id: gcloud
-        uses: google-github-actions/setup-gcloud@master
+      - name: Checkout
+        uses: actions/checkout@v2
 
       # Setup gcloud CLI
       - uses: google-github-actions/setup-gcloud@master
