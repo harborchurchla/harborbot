@@ -1,0 +1,10 @@
+version: "3"
+services:
+  bot:
+    build: ./
+    entrypoint: ./flottbot
+    env_file: .env
+    volumes:
+      - .config:/opt/app/config
+    ports:
+      - 3000:3000

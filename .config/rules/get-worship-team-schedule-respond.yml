@@ -1,0 +1,13 @@
+name: what's the worship team schedule
+active: true
+respond: /(worship team schedule|worship schedule)/
+reaction: loading
+actions:
+  - name: get the upcoming worship team schedule
+    type: exec
+    cmd: python config/scripts/team_management.py get-schedule -t worship
+    update_reaction: white_check_mark
+format_output: "${_exec_output}"
+direct_message_only: false
+help_text: worship schedule (shows the upcoming schedule for worship team rotations)
+include_in_help: true
