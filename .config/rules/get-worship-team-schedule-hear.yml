@@ -6,6 +6,7 @@ actions:
   - name: get the upcoming worship team schedule
     type: exec
     cmd: python config/scripts/team_management.py get-schedule -t worship
+    timeout: 30
     update_reaction: white_check_mark
 format_output: "${_exec_output}"
 direct_message_only: false
