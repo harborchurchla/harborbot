@@ -22,10 +22,13 @@
 #USER ${USERNAME}
 #ENTRYPOINT ./flottbot
 
+FROM golang:1.16.4 as builder
+COPY main.go ./main.go
+RUN go build -o /bin/main ./main.go
+
 FROM target/flottbot:python
-
+COPY --from=builder /bin/main ./main
 COPY .config ./config
-
 RUN pip install -r ./config/scripts/requirements.txt
 
-CMD ["/flottbot"]
+CMD ["/main"]
