@@ -25,24 +25,16 @@ func main() {
 	var wg sync.WaitGroup
 	var err error
 
-	// Run bot
+	// Only increment by one so that the app fails in the case of either a bot or API failure
 	wg.Add(1)
+
+	// Run bot
 	go func() {
 		defer wg.Done()
 		err = runBot()
 	}()
 
-	// Don't start API until bot web service starts
-	err = poll(func() error {
-		_, err := http.Get("http://localhost:3000")
-		return err
-	}, 5)
-	if err != nil {
-		log.Fatalf("flottbot web server failed to start after 5 seconds: %v", err)
-	}
-
 	// Run API
-	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		err = runApi()
@@ -66,7 +58,7 @@ func runApi() error {
 	serviceAccountJson = strings.ReplaceAll(serviceAccountJson, "'", "")
 	conf, err := google.JWTConfigFromJSON([]byte(serviceAccountJson), spreadsheet.Scope)
 	if err != nil {
-		log.Fatalf("error while loading google service account json: %v", err)
+		return fmt.Errorf("error while loading google service account json: %v", err)
 	}
 	scheduleService := services.NewScheduleService(
 		spreadsheet.NewServiceWithClient(conf.Client(context.TODO())),
@@ -75,6 +67,15 @@ func runApi() error {
 
 	engine := api.New(scheduleService)
 	engine.POST("/slack_events/v1/events", reverseProxy("http://localhost:3000"))
+
+	// Don't start API until bot web service starts
+	err = poll(func() error {
+		_, err := http.Get("http://localhost:3000")
+		return err
+	}, 5)
+	if err != nil {
+		return fmt.Errorf("flottbot web server failed to start after 5 seconds: %v", err)
+	}
 
 	return engine.Run()
 }
