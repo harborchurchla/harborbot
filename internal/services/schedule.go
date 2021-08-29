@@ -40,7 +40,11 @@ func (s *ScheduleService) GetByTeam(team string) (*entities.Schedule, error) {
 			return nil, fmt.Errorf("error parsing time for data %s - %v", row[0].Value, err)
 		}
 
-		scheduleEntries = append(scheduleEntries, &entities.ScheduleEntry{Date: entities.ScheduleDate(t), TeamMembers: row[1].Value, Notes: row[2].Value})
+		scheduleEntries = append(scheduleEntries, &entities.ScheduleEntry{
+			Date:        entities.ScheduleDate(t),
+			TeamMembers: row[1].Value,
+			Notes:       row[2].Value,
+		})
 	}
 
 	return &entities.Schedule{Team: team, Entries: scheduleEntries}, nil

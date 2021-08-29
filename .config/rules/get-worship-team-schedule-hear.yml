@@ -4,11 +4,14 @@ hear: /(worship team schedule|worship schedule)/
 reaction: loading
 actions:
   - name: get the upcoming worship team schedule
-    type: exec
-    cmd: config/scripts/team_management.py get-schedule -t worship
+    type: GET
+    url: http://localhost:8080/schedule/worship
+    expose_json_fields:
+      team: '.team'
+      entries: '.entries'
     timeout: 30
     update_reaction: white_check_mark
-format_output: "${_exec_output}"
+format_output: "${team}\n\n${entries}"
 direct_message_only: false
 help_text: worship schedule (shows the upcoming schedule for worship team rotations)
 include_in_help: true
