@@ -2,18 +2,21 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/harborchurchla/harborbot/internal/api"
 	"github.com/harborchurchla/harborbot/internal/services"
 	"golang.org/x/oauth2/google"
 	"gopkg.in/Iwark/spreadsheet.v2"
 	"log"
+	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
 	"os/exec"
 	"strings"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -28,6 +31,15 @@ func main() {
 		defer wg.Done()
 		err = runBot()
 	}()
+
+	// Don't start API until bot web service starts
+	err = poll(func() error {
+		_, err := http.Get("http://localhost:3000")
+		return err
+	}, 5)
+	if err != nil {
+		log.Fatalf("flottbot web server failed to start after 5 seconds: %v", err)
+	}
 
 	// Run API
 	wg.Add(1)
@@ -76,4 +88,17 @@ func reverseProxy(target string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		proxy.ServeHTTP(c.Writer, c.Request)
 	}
+}
+
+func poll(method func() error, timeoutSeconds int) error {
+	start := time.Now()
+	for int(time.Now().Sub(start).Seconds()) <= timeoutSeconds {
+		err := method()
+		if err == nil {
+			return nil
+		}
+		time.Sleep(1 * time.Second)
+	}
+
+	return fmt.Errorf("timed out polling method after %d seconds", timeoutSeconds)
 }
