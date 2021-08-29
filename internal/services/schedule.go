@@ -49,3 +49,7 @@ func (s *ScheduleService) GetByTeam(team string) (*entities.Schedule, error) {
 
 	return &entities.Schedule{Team: team, Entries: scheduleEntries}, nil
 }
+
+func (s *ScheduleService) GetSheetID() string {
+	return s.sheetId
+}

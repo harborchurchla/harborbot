@@ -5,13 +5,12 @@ reaction: loading
 actions:
   - name: get the upcoming worship team schedule
     type: GET
-    url: http://localhost:8080/schedule/worship
+    url: http://localhost:8080/actions/get-team-schedule?team=worship
     expose_json_fields:
-      team: '.team'
-      entries: '.entries'
+      message: '.message'
     timeout: 30
     update_reaction: white_check_mark
-format_output: "${team}\n\n${entries}"
+format_output: "${message}"
 direct_message_only: false
 help_text: worship schedule (shows the upcoming schedule for worship team rotations)
 include_in_help: true
