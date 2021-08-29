@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/harborchurchla/harborbot/internal/services"
+	"sort"
 	"time"
 )
 
@@ -13,7 +14,8 @@ type API struct {
 }
 
 const (
-	GetTeamScheduleAction = "get-team-schedule"
+	GetTeamScheduleAction   = "get-team-schedule"
+	GetWhoIsServingThisWeek = "get-who-is-serving-this-week"
 )
 
 func New(ss *services.ScheduleService) *API {
@@ -34,9 +36,14 @@ func (a *API) ping(ctx *gin.Context) {
 }
 
 func (a *API) listActions(ctx *gin.Context) {
-	ctx.JSON(200, []gin.H{{
-		"id": GetTeamScheduleAction,
-	}})
+	ctx.JSON(200, []gin.H{
+		{
+			"id": GetTeamScheduleAction,
+		},
+		{
+			"id": GetWhoIsServingThisWeek,
+		},
+	})
 }
 
 func (a *API) executeAction(ctx *gin.Context) {
@@ -54,12 +61,33 @@ func (a *API) executeAction(ctx *gin.Context) {
 		entries := schedule.GetFutureEntries()
 		scheduleText := ""
 		for _, entry := range entries {
-			scheduleText += fmt.Sprintf("%s: %s\n", time.Time(entry.Date).Format("1/2/2006"), entry.TeamMembers)
+			scheduleText += fmt.Sprintf("%s: *%s*\n", time.Time(entry.Date).Format("1/2/2006"), entry.TeamMembers)
 		}
 		sheetText := fmt.Sprintf("_Feel free to make changes on the google sheet:_ https://docs.google.com/spreadsheets/d/%s", a.ScheduleService.GetSheetID())
 
 		ctx.JSON(200, gin.H{
 			"message": fmt.Sprintf("_Here's the upcoming schedule for the %s team:_\n\n%s\n\n%s", team, scheduleText, sheetText),
+			"metadata": gin.H{
+				"schedule": schedule,
+			}})
+		return
+	case GetWhoIsServingThisWeek:
+		team := ctx.Query("team")
+		schedule, err := a.ScheduleService.GetByTeam(team)
+		if err != nil {
+			ctx.JSON(400, gin.H{
+				"message": fmt.Sprintf("error while fetching %s team schedule: %s", team, err.Error()),
+			})
+			return
+		}
+		entries := schedule.GetFutureEntries()
+		sort.SliceStable(entries, func(i, j int) bool {
+			return time.Time(entries[i].Date).Before(time.Time(entries[j].Date))
+		})
+		next := entries[0]
+		sheetText := fmt.Sprintf("_Feel free to make changes on the google sheet:_ https://docs.google.com/spreadsheets/d/%s", a.ScheduleService.GetSheetID())
+		ctx.JSON(200, gin.H{
+			"message": fmt.Sprintf("_Here's who's serving this %s_\n\n*%s*\n\n%s", time.Time(next.Date).Format("Mon Jan _2"), next.TeamMembers, sheetText),
 			"metadata": gin.H{
 				"schedule": schedule,
 			}})

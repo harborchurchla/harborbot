@@ -4,11 +4,13 @@ respond: /(who's leading worship|who is leading worship|who is leading|who's lea
 reaction: loading
 actions:
   - name: find out who is leading worship
-    type: exec
-    cmd: config/scripts/test.py
+    type: GET
+    url: http://localhost:8080/actions/get-who-is-serving-this-week?team=worship
+    expose_json_fields:
+      message: '.message'
     timeout: 30
     update_reaction: white_check_mark
-format_output: "${_exec_output}"
+format_output: "${message}"
 direct_message_only: false
 help_text: who's leading worship (shows the worship team leading this week)
 include_in_help: true
