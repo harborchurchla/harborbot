@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"os"
 	"os/exec"
 	"sync"
@@ -52,17 +52,17 @@ func runApi() error {
 		})
 	})
 
-	r.POST("/slack_events/v1/events", ReverseProxyToFlottbot("localhost:3000"))
+	r.POST("/slack_events/v1/events", ReverseProxy("http://localhost:3000"))
 	return r.Run()
 }
 
-func ReverseProxyToFlottbot(target string) gin.HandlerFunc {
+func ReverseProxy(target string) gin.HandlerFunc {
+	u, err := url.Parse(target)
+	if err != nil {
+		log.Fatalf("error while parsing reverse proxy url: %v", err)
+	}
+	proxy := httputil.NewSingleHostReverseProxy(u)
 	return func(c *gin.Context) {
-		director := func(req *http.Request) {
-			req.URL.Scheme = "http"
-			req.URL.Host = target
-		}
-		proxy := &httputil.ReverseProxy{Director: director}
 		proxy.ServeHTTP(c.Writer, c.Request)
 	}
 }
