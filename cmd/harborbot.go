@@ -64,8 +64,9 @@ func runApi() error {
 		spreadsheet.NewServiceWithClient(conf.Client(context.TODO())),
 		os.Getenv("SCHEDULE_SHEET_ID"),
 	)
+	actionService := services.NewActionService(scheduleService)
 
-	engine := api.New(scheduleService)
+	engine := api.New(scheduleService, actionService)
 	engine.POST("/slack_events/v1/events", reverseProxy("http://localhost:3000"))
 
 	// Don't start API until bot web service starts
