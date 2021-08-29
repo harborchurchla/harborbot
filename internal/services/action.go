@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/harborchurchla/harborbot/internal/entities"
+	"github.com/harborchurchla/harborbot/internal/utils"
 	"sort"
 	"time"
 )
@@ -48,12 +49,17 @@ func (s *ActionService) ExecuteGetTeamScheduleAction(team string) (*entities.Act
 	entries := schedule.GetFutureEntries()
 	scheduleText := ""
 	for _, entry := range entries {
-		scheduleText += fmt.Sprintf("%s: *%s*\n", time.Time(entry.Date).Format("1/2/2006"), entry.TeamMembers)
+		scheduleText += fmt.Sprintf("%s: *%s*\n", time.Time(entry.Date).Format("1/2/2006"), utils.ReplaceNameWithSlackMention(entry.TeamMembers))
 	}
 	sheetText := fmt.Sprintf("_Feel free to make changes on the google sheet:_ https://docs.google.com/spreadsheets/d/%s", s.ScheduleService.GetSheetID())
 
 	return &entities.ActionResult{
-		Message: fmt.Sprintf("_Here's the upcoming schedule for the %s team:_\n\n%s\n\n%s", team, scheduleText, sheetText),
+		Message: fmt.Sprintf(
+			"_Here's the upcoming schedule for the %s team:_\n\n%s\n\n%s",
+			team,
+			scheduleText,
+			sheetText,
+		),
 		Metadata: gin.H{
 			"schedule": schedule,
 		},
@@ -73,7 +79,12 @@ func (s *ActionService) ExecuteGetWhoIsServingThisWeekAction(team string) (*enti
 	sheetText := fmt.Sprintf("_Feel free to make changes on the google sheet:_ https://docs.google.com/spreadsheets/d/%s", s.ScheduleService.GetSheetID())
 
 	return &entities.ActionResult{
-		Message: fmt.Sprintf("_Here's who's serving this %s:_\n\n*%s*\n\n%s", time.Time(next.Date).Format("Mon Jan _2"), next.TeamMembers, sheetText),
+		Message: fmt.Sprintf(
+			"_Here's who's serving this %s:_\n\n*%s*\n\n%s",
+			time.Time(next.Date).Format("Mon Jan _2"),
+			utils.ReplaceNameWithSlackMention(next.TeamMembers),
+			sheetText,
+		),
 		Metadata: gin.H{
 			"schedule": schedule,
 		},
