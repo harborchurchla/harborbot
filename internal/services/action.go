@@ -23,14 +23,18 @@ func (s *ActionService) ListActions() []*entities.Action {
 	}
 }
 
-func (s *ActionService) ExecuteByID(id string, params map[string]string) (*entities.ActionResult, error) {
+func (s *ActionService) ExecuteByID(id string, params map[string][]string) (*entities.ActionResult, error) {
 	switch id {
 	case entities.GetTeamScheduleAction:
-		team := params["team"]
-		return s.ExecuteGetTeamScheduleAction(team)
+		if len(params["team"]) != 1 {
+			return nil, fmt.Errorf("one param 'team' is required for action %s", id)
+		}
+		return s.ExecuteGetTeamScheduleAction(params["team"][0])
 	case entities.GetWhoIsServingThisWeekAction:
-		team := params["team"]
-		return s.ExecuteGetWhoIsServingThisWeekAction(team)
+		if len(params["team"]) != 1 {
+			return nil, fmt.Errorf("one param 'team' is required for action %s", id)
+		}
+		return s.ExecuteGetWhoIsServingThisWeekAction(params["team"][0])
 	default:
 		return nil, fmt.Errorf("error executing unknown action %s", id)
 	}

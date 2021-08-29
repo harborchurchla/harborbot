@@ -3,7 +3,6 @@ package api
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/harborchurchla/harborbot/internal/entities"
 	"github.com/harborchurchla/harborbot/internal/services"
 )
 
@@ -34,44 +33,13 @@ func (a *API) listActions(ctx *gin.Context) {
 
 func (a *API) executeAction(ctx *gin.Context) {
 	action := ctx.Param("id")
-	switch action {
-	case entities.GetTeamScheduleAction:
-		team := ctx.Query("team")
-		if team == "" {
-			ctx.JSON(400, gin.H{
-				"message": fmt.Sprintf("query param 'team' is required for action: %s", action),
-			})
-			return
-		}
-		result, err := a.ActionService.ExecuteGetTeamScheduleAction(team)
-		if err != nil {
-			ctx.JSON(400, gin.H{
-				"message": fmt.Sprintf("error while executing action %s for team %s: %s", action, team, err.Error()),
-			})
-			return
-		}
-		ctx.JSON(200, result)
-		return
-	case entities.GetWhoIsServingThisWeekAction:
-		team := ctx.Query("team")
-		if team == "" {
-			ctx.JSON(400, gin.H{
-				"message": fmt.Sprintf("query param 'team' is required for action: %s", action),
-			})
-			return
-		}
-		result, err := a.ActionService.ExecuteGetWhoIsServingThisWeekAction(team)
-		if err != nil {
-			ctx.JSON(400, gin.H{
-				"message": fmt.Sprintf("error while executing action %s for team %s: %s", action, team, err.Error()),
-			})
-			return
-		}
-		ctx.JSON(200, result)
-		return
-	default:
+	result, err := a.ActionService.ExecuteByID(action, ctx.Request.URL.Query())
+	if err != nil {
 		ctx.JSON(400, gin.H{
-			"message": fmt.Sprintf("error executing unknown action %s", action),
+			"message": fmt.Sprintf("error while executing action %s: %s", action, err.Error()),
 		})
+		return
 	}
+
+	ctx.JSON(200, result)
 }
