@@ -6,7 +6,7 @@ COPY go.sum .
 RUN go mod download
 
 COPY cmd ./cmd
-COPY internal ./internal
+#COPY internal ./internal
 RUN CGO_ENABLED=0 go build -o /bin/harborbot ./cmd/harborbot.go
 
 FROM target/flottbot
