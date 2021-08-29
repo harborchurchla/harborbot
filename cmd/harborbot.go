@@ -1,12 +1,18 @@
 package main
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/harborchurchla/harborbot/internal/api"
+	"github.com/harborchurchla/harborbot/internal/services"
+	"golang.org/x/oauth2/google"
+	"gopkg.in/Iwark/spreadsheet.v2"
 	"log"
 	"net/http/httputil"
 	"net/url"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 )
 
@@ -44,19 +50,24 @@ func runBot() error {
 }
 
 func runApi() error {
-	r := gin.Default()
+	serviceAccountJson := os.Getenv("GOOGLE_SERVICE_ACCOUNT_KEY_JSON")
+	serviceAccountJson = strings.ReplaceAll(serviceAccountJson, "'", "")
+	conf, err := google.JWTConfigFromJSON([]byte(serviceAccountJson), spreadsheet.Scope)
+	if err != nil {
+		log.Fatalf("error while loading google service account json: %v", err)
+	}
+	scheduleService := services.NewScheduleService(
+		spreadsheet.NewServiceWithClient(conf.Client(context.TODO())),
+		os.Getenv("SCHEDULE_SHEET_ID"),
+	)
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	engine := api.New(scheduleService)
+	engine.POST("/slack_events/v1/events", reverseProxy("http://localhost:3000"))
 
-	r.POST("/slack_events/v1/events", ReverseProxy("http://localhost:3000"))
-	return r.Run()
+	return engine.Run()
 }
 
-func ReverseProxy(target string) gin.HandlerFunc {
+func reverseProxy(target string) gin.HandlerFunc {
 	u, err := url.Parse(target)
 	if err != nil {
 		log.Fatalf("error while parsing reverse proxy url: %v", err)
