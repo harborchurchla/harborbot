@@ -1,6 +1,6 @@
 name: respond to who is leading worship
 active: true
-respond: /(who's leading worship|who is leading worship|who is leading|who's leading|who's leading this week|who is leading this week)/
+respond: /(who is leading|who's leading|who’s leading)/
 reaction: loading
 actions:
   - name: find out who is leading worship

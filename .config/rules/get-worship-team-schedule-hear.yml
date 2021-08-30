@@ -1,6 +1,6 @@
 name: listen for what's the worship team schedule
 active: true
-hear: /(worship team schedule|worship schedule)/
+hear: /(worship team schedule|worship schedule|what's the schedule|what is the schedule|what’s the schedule)/
 reaction: loading
 actions:
   - name: get the upcoming worship team schedule

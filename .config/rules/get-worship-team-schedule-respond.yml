@@ -1,6 +1,6 @@
 name: respond to what's the worship team schedule
 active: true
-respond: /(worship team schedule|worship schedule)/
+respond: /(worship team schedule|worship schedule|what's the schedule|what is the schedule|what’s the schedule)/
 reaction: loading
 actions:
   - name: get the upcoming worship team schedule
