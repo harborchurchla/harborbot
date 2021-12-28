@@ -21,7 +21,7 @@ type ScheduleEntry struct {
 func (s *Schedule) GetFutureEntries() []*ScheduleEntry {
 	var future []*ScheduleEntry
 	for _, entry := range s.Entries {
-		if time.Time(entry.Date).YearDay() >= time.Now().YearDay() {
+		if time.Time(entry.Date).Unix() >= time.Now().Unix() {
 			future = append(future, entry)
 		}
 	}
