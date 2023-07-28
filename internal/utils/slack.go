@@ -16,6 +16,7 @@ func ReplaceNameWithSlackMention(text string) string {
 		"caleb":  "U0105LQ01A5",
 		"jackie": "U010KU8141M",
 		"benu":   "U01JTK7SEM9",
+		"eliana": "U05BN2PMAAZ",
 	}
 
 	for name, slackUserId := range slackUserMap {
