@@ -9,7 +9,7 @@ actions:
     expose_json_fields:
       message: '.message'
     timeout: 30
-    update_reaction: white_check_mark
+    update_reaction: harborchurchla
 format_output: "${message}"
 direct_message_only: false
 help_text: worship schedule (shows the upcoming schedule for worship team rotations)
