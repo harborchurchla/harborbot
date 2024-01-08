@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/harborchurchla/harborbot/internal/services"
+	"strings"
 )
 
 type API struct {
@@ -36,7 +37,7 @@ func (a *API) executeAction(ctx *gin.Context) {
 	result, err := a.ActionService.ExecuteByID(action, ctx.Request.URL.Query())
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"message": fmt.Sprintf("error while executing action %s: %s", action, err.Error()),
+			"message": fmt.Sprintf("I wasn't able to %s - %s.", strings.ReplaceAll(action, "-", " "), err),
 		})
 		return
 	}

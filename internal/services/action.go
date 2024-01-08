@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/harborchurchla/harborbot/internal/entities"
@@ -47,6 +48,10 @@ func (s *ActionService) ExecuteGetTeamScheduleAction(team string) (*entities.Act
 		return nil, fmt.Errorf("error while fetching %s team schedule: %v", team, err)
 	}
 	entries := schedule.GetFutureEntries()
+	if len(entries) == 0 {
+		return nil, errors.New("the schedule needs to be updated")
+	}
+
 	scheduleText := ""
 	for _, entry := range entries {
 		scheduleText += fmt.Sprintf("%s: *%s*\n", time.Time(entry.Date).Format("1/2/2006"), utils.ReplaceNameWithSlackMention(entry.TeamMembers))
@@ -72,6 +77,10 @@ func (s *ActionService) ExecuteGetWhoIsServingThisWeekAction(team string) (*enti
 		return nil, fmt.Errorf("error while fetching %s team schedule: %v", team, err)
 	}
 	entries := schedule.GetFutureEntries()
+	if len(entries) == 0 {
+		return nil, errors.New("the schedule needs to be updated")
+	}
+
 	sort.SliceStable(entries, func(i, j int) bool {
 		return time.Time(entries[i].Date).Before(time.Time(entries[j].Date))
 	})
